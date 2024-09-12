@@ -146,18 +146,24 @@ void loop() {
       }
   }
 
-  void adc_task(void *pvParameters) {
-      for (;;) {
-          if (system_on) {
-              int adc_value = adc_read(ADC_PIN);
-              String message = "ADC Value: " + String(adc_value) + "\n";
-              serial_write(message.c_str());
-          } else {
-              serial_write("No_Disponible\n");
-          }
-          vTaskDelay(pdMS_TO_TICKS(1000)); // Espera 1 segundo
-      }
-  }
+ void adc_task(void *pvParameters) {
+       for (;;) {
+           if (system_on) {
+               int adc_value = adc_read(ADC_PIN);
+               
+               // Verifica si el valor leído es 0, indicando una posible desconexión
+               if (adc_value == 0) {
+                   serial_write("ADC Desconectado\n");
+               } else {
+                   String message = "ADC Value: " + String(adc_value) + "\n";
+                   serial_write(message.c_str());
+               }
+           } else {
+               serial_write("No_Disponible\n");
+           }
+           vTaskDelay(pdMS_TO_TICKS(1000)); // Espera 1 segundo
+       }
+   }
 #endif
 
 
