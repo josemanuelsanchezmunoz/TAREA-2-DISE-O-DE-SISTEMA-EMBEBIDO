@@ -1,7 +1,7 @@
 #include "bsp.h"
 
 #ifdef ARDUINO_BSP
-   #define LED_PIN 13
+  #define LED_PIN 13
   #define buttonPin 2
   #define adc_pin A0
   volatile bool buttonPressed = false;
@@ -74,28 +74,8 @@ void loop() {
 #ifdef ARDUINO_BSP
 
   void print_adc(){
-    int adc_lec[10];
-    bool adc_conected = true;
-
-    for(int i = 0; i<10; i++){
-      adc_lec[i] = adc_read(adc_pin);
-      if(i > 0){
-        if( ((adc_lec[i-1] - adc_lec[i]) > 2) || ((adc_lec[i-1] - adc_lec[i]) < -2) || ((adc_lec[i-1] - adc_lec[i]) == 1023) ){
-          adc_conected = false;
-        }
-      }
-    }
-
-    if(adc_conected){
-      print_flag = false;
-      serial_write(adc_lec[9]);
-    }
-
-    if(print_flag == false && adc_conected == false){
-      print_flag = true;
-      serial_write("ADC not conected");
-    }
-
+    serial_write(adc_read(adc_pin));
+  
     delay(200);
   }
 
@@ -146,24 +126,18 @@ void loop() {
       }
   }
 
- void adc_task(void *pvParameters) {
-    for (;;) {
-        if (system_on) {
-            int adc_value = adc_read(ADC_PIN);
-            
-            // Verifica si el valor leído es 0, indicando una posible desconexión
-            if (adc_value == 0) {
-                serial_write("ADC Desconectado\n");
-            } else {
-                String message = "ADC Value: " + String(adc_value) + "\n";
-                serial_write(message.c_str());
-            }
-        } else {
-            serial_write("No_Disponible\n");
-        }
-        vTaskDelay(pdMS_TO_TICKS(1000)); // Espera 1 segundo
-    }
-   }
+  void adc_task(void *pvParameters) {
+      for (;;) {
+          if (system_on) {
+              int adc_value = adc_read(ADC_PIN);
+              String message = "ADC Value: " + String(adc_value) + "\n";
+              serial_write(message.c_str());
+          } else {
+              serial_write("No_Disponible\n");
+          }
+          vTaskDelay(pdMS_TO_TICKS(1000)); // Espera 1 segundo
+      }
+  }
 #endif
 
 
